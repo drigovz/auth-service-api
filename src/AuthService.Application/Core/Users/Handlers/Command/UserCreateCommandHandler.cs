@@ -18,7 +18,7 @@ namespace AuthService.Application.Core.Users.Handlers.Command
 
         public async Task<GenericResponse> Handle(UserCreateCommand request, CancellationToken cancellationToken)
         {
-            if (!(request.Password.Equals(request.ConfirmPassword)))
+            if (!request.Password.Equals(request.ConfirmPassword))
             {
                 _notification.AddNotification("Password error", "Password dont match!");
                 return new GenericResponse
