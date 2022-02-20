@@ -1,5 +1,6 @@
 ﻿using AuthService.Application.Core.Users.Commands;
 using AuthService.Application.Notifications;
+using AuthService.Application.Utilities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
@@ -20,25 +21,14 @@ namespace AuthService.Application.Core.Users.Handlers.Command
 
         public async Task<GenericResponse> Handle(UserCreateCommand request, CancellationToken cancellationToken)
         {
-            if (!request.Password.Equals(request.ConfirmPassword))
-            {
-                _notification.AddNotification("Password error", "Password dont match!");
-                return new GenericResponse
-                {
-                    Notifications = _notification.Notifications,
-                };
-            }
-
             var user = new IdentityUser
             {
                 UserName = request.Email,
                 Email = request.Email,
-                PasswordHash = request.Password,
-                EmailConfirmed = false
+                EmailConfirmed = true
             };
 
-            var result = await _userManager.CreateAsync(user);
-
+            var result = await _userManager.CreateAsync(user, Cryptography.HashPassword(request.Password));
             if (!result.Succeeded)
             {
                 foreach (var error in result?.Errors)

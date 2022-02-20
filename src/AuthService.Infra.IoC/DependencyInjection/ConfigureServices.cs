@@ -17,6 +17,7 @@ namespace AuthService.Infra.IoC.DependencyInjection
             var handlers = AppDomain.CurrentDomain.Load("AuthService.Application");
             services.AddMediatR(handlers);
 
+            Cryptography.SetConfig(configuration);
             TokenConfig.SetConfig(configuration);
             services.AddIdentity<IdentityUser, IdentityRole>()
                     .AddEntityFrameworkStores<AppDbContext>()

@@ -21,9 +21,29 @@ namespace AuthService.Application.Core.Auth.Handlers.Commands
 
         public async Task<GenericResponse> Handle(AuthLoginCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByNameAsync(request.UserName);
+            var user = await _userManager.FindByEmailAsync(request.UserName);
+            if (user != null && !user.EmailConfirmed)
+            {
+                _notification.AddNotification("Login Error", "Email not confirmed yet");
 
-            var result = await _sigInManager.PasswordSignInAsync(request.UserName, request.Password, isPersistent: false, lockoutOnFailure: false);
+                return new GenericResponse
+                {
+                    Notifications = _notification.Notifications,
+                };
+            }
+
+            string password = Cryptography.HashPassword(request.Password);
+            if (await _userManager.CheckPasswordAsync(user, password) == false)
+            {
+                _notification.AddNotification("Login Error", "Invalid credentials");
+
+                return new GenericResponse
+                {
+                    Notifications = _notification.Notifications,
+                };
+            }
+
+            var result = await _sigInManager.PasswordSignInAsync(request.UserName, password, isPersistent: false, lockoutOnFailure: false);
             if (!result.Succeeded)
             {
                 _notification.AddNotification("Login error", "UserName or Password not valid!");
