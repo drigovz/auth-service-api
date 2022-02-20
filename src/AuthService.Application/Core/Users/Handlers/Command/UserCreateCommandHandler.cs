@@ -8,11 +8,13 @@ namespace AuthService.Application.Core.Users.Handlers.Command
     public class UserCreateCommandHandler : IRequestHandler<UserCreateCommand, GenericResponse>
     {
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _sigInManager;
         private readonly NotificationContext _notification;
 
-        public UserCreateCommandHandler(NotificationContext notification, UserManager<IdentityUser> userManager)
+        public UserCreateCommandHandler(NotificationContext notification, SignInManager<IdentityUser> sigInManager, UserManager<IdentityUser> userManager)
         {
             _notification = notification;
+            _sigInManager = sigInManager;
             _userManager = userManager;
         }
 
@@ -27,24 +29,28 @@ namespace AuthService.Application.Core.Users.Handlers.Command
                 };
             }
 
-            var result = await _userManager.CreateAsync(new IdentityUser
+            var user = new IdentityUser
             {
                 UserName = request.Email,
                 Email = request.Email,
-                EmailConfirmed = true
-            });
+                PasswordHash = request.Password,
+                EmailConfirmed = false
+            };
+
+            var result = await _userManager.CreateAsync(user);
 
             if (!result.Succeeded)
             {
-                result.Errors.Select(error =>
-                    _notification.AddNotification($"Identity Error - {error.Code}", error.Description)
-                );
+                foreach (var error in result?.Errors)
+                    _notification.AddNotification($"Identity Error - {error.Code}", error.Description);
 
                 return new GenericResponse
                 {
                     Notifications = _notification.Notifications,
                 };
             }
+
+            await _sigInManager.SignInAsync(user, false);
 
             return new GenericResponse
             {

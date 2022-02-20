@@ -14,7 +14,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddRepositories(builder.Configuration);
-builder.Services.AddServices();
+builder.Services.AddServices(builder.Configuration);
 builder.Services.AddScoped<NotificationContext>();
 builder.Services.AddControllers()
         .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<NotificationContext>());
