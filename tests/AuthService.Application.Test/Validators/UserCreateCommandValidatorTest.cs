@@ -1,5 +1,6 @@
 ﻿using AuthService.Application.Core.Users.Commands;
 using AuthService.Application.Core.Users.Validators;
+using AuthService.Application.Test.Mocks;
 using Bogus;
 using FluentAssertions;
 using Xunit;
@@ -9,10 +10,6 @@ namespace AuthService.Application.Test.Validators
     public class UserCreateCommandValidatorTest
     {
         private static readonly Faker faker = new("en");
-        private static string _password = faker.Lorem.Letter(10);
-        private string Email = faker.Internet.Email();
-        private string Password = _password;
-        private string ConfirmPassword = _password;
 
         private UserCreateCommandValidator _validator;
         private UserCreateCommand _userCreateCommand;
@@ -20,12 +17,7 @@ namespace AuthService.Application.Test.Validators
         public UserCreateCommandValidatorTest()
         {
             _validator = new UserCreateCommandValidator();
-            _userCreateCommand = new UserCreateCommand
-            {
-                Email = Email,
-                Password = Password,
-                ConfirmPassword = ConfirmPassword,
-            };
+            _userCreateCommand = UserCreateCommandMock.UserCreateCommand();
         }
 
         [Theory]
