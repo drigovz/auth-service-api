@@ -1,7 +1,7 @@
 ﻿using AuthService.Application.Core.Users.Queries;
 using FluentValidation;
 
-namespace AuthService.Application.Core.Auth.Validators
+namespace AuthService.Application.Core.Users.Validators
 {
     public class GetUserByIdQueryValidator : AbstractValidator<GetUserByIdQuery>
     {
