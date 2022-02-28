@@ -44,7 +44,7 @@ namespace AuthService.Application.Core.Users.Handlers.Command
 
             return new GenericResponse
             {
-                Result = "User created successful!",
+                Result = user,
             };
         }
     }

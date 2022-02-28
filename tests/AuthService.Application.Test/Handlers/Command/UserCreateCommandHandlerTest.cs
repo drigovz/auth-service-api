@@ -3,7 +3,6 @@ using AuthService.Application.Core.Users.Handlers.Command;
 using AuthService.Application.Notifications;
 using AuthService.Application.Test.Mocks;
 using AuthService.Application.Utilities;
-using Bogus;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Moq;
@@ -38,26 +37,29 @@ namespace AuthService.Application.Test.Handlers.Command
             );
         }
 
-        [Fact (Skip = "Don't possible to create user")]
+        [Fact]
         public void Should_Be_Possible_To_Create_New_User()
         {
-            Faker faker = new("en");
-            var user = new IdentityUser
-            {
-                UserName = faker.Internet.Email(),
-                Email = faker.Internet.Email(),
-                EmailConfirmed = true
-            };
+            _userManagerMock.Setup(x => x.CreateAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
+                            .ReturnsAsync(IdentityResult.Success);
 
-            _userManagerMock.Setup(x => x.CreateAsync(user, Cryptography.HashPassword("mypassword@123")))
-                           .ReturnsAsync(IdentityResult.Success)
-                           .Verifiable();
+            _sigInManagerMock.Setup(x => x.PasswordSignInAsync(It.IsAny<IdentityUser>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                             .ReturnsAsync(SignInResult.Success);
 
             _userCreateCommandHandler = _userCreateCommandHandlerMock.Object;
 
             var result = _userCreateCommandHandler.Handle(_userCreateCommand, new CancellationToken()).Result;
 
+            string? id = result.Result?.Id;
+            string? email = result.Result?.Email;
+            string? userName = result.Result?.UserName;
+            bool emailConfirmed = result.Result?.EmailConfirmed;
+
             result.Result?.Equals(true);
+            email?.Should().NotBeNull();
+            userName?.Should().NotBeNull();
+            emailConfirmed.Should().BeTrue();
+            id?.Should().NotBeNull();
             result.Notifications?.Should().BeEmpty();
             result.Notifications?.Should().HaveCount(c => c == 0);
         }
