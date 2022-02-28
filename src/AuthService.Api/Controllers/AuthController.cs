@@ -18,5 +18,9 @@ namespace AuthService.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Post([FromBody] AuthLoginCommand request)
             => Ok(await _mediator.Send(request));
+
+        [HttpPost("validate")]
+        public async Task<IActionResult> Validate([FromBody] ValidateTokenCommand request)
+            => Ok(await _mediator.Send(request));
     }
 }

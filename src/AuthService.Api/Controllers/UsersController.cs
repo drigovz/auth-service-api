@@ -1,5 +1,5 @@
-﻿using AuthService.Application.Core.Auth.Queries;
-using AuthService.Application.Core.Users.Commands;
+﻿using AuthService.Application.Core.Users.Commands;
+using AuthService.Application.Core.Users.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

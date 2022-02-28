@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace AuthService.Application.Core.Auth.Queries
+namespace AuthService.Application.Core.Users.Queries
 {
     public class GetUserByIdQuery : IRequest<GenericResponse>
     {

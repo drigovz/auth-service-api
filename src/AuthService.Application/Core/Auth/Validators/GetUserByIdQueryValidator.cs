@@ -1,4 +1,4 @@
-﻿using AuthService.Application.Core.Auth.Queries;
+﻿using AuthService.Application.Core.Users.Queries;
 using FluentValidation;
 
 namespace AuthService.Application.Core.Auth.Validators
