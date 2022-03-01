@@ -1,4 +1,5 @@
 ﻿using AuthService.Application.Core.Auth.Commands;
+using AuthService.Application.Core.Users.Queries;
 using AuthService.Application.Notifications;
 using AuthService.Application.Utilities;
 using MediatR;
@@ -10,30 +11,26 @@ namespace AuthService.Application.Core.Auth.Handlers.Commands
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _sigInManager;
+        private readonly IMediator _mediator;
         private readonly NotificationContext _notification;
 
-        public AuthLoginCommandHandler(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> sigInManager, NotificationContext notification)
+        public AuthLoginCommandHandler(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> sigInManager, NotificationContext notification, IMediator mediator)
         {
             _userManager = userManager;
             _sigInManager = sigInManager;
             _notification = notification;
+            _mediator = mediator;
         }
 
         public async Task<GenericResponse> Handle(AuthLoginCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByEmailAsync(request.UserName);
-            if (user != null && !user.EmailConfirmed)
+            var user = await _mediator.Send(new GetUserByEmailQuery
             {
-                _notification.AddNotification("Login Error", "Email not confirmed yet");
-
-                return new GenericResponse
-                {
-                    Notifications = _notification.Notifications,
-                };
-            }
+                Email = request.UserName,
+            });
 
             string password = Cryptography.HashPassword(request.Password);
-            if (await _userManager.CheckPasswordAsync(user, password) == false)
+            if (await _userManager.CheckPasswordAsync(user.Result, password) == false)
             {
                 _notification.AddNotification("Login Error", "Invalid credentials");
 
