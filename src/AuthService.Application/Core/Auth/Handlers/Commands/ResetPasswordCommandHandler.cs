@@ -1,6 +1,7 @@
 ﻿using AuthService.Application.Core.Auth.Commands;
 using AuthService.Application.Core.Users.Queries;
 using AuthService.Application.Notifications;
+using AuthService.Application.Utilities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
@@ -28,7 +29,7 @@ namespace AuthService.Application.Core.Auth.Handlers.Commands
                 Email = request.UserName,
             });
 
-            var result = await _userManager.ResetPasswordAsync(user.Result, request.Token, request.Password);
+            var result = await _userManager.ResetPasswordAsync(user.Result, request.Token, Cryptography.HashPassword(request.Password));
             if (!result.Succeeded)
             {
                 foreach (var error in result?.Errors)

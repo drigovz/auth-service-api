@@ -8,6 +8,7 @@ namespace AuthService.Application.Core.Auth.Validators
         public ResetPasswordCommandValidator()
         {
             RuleFor(x => x.UserName).NotNull().NotEmpty();
+            RuleFor(x => x.Token).NotNull().NotEmpty();
             RuleFor(x => x.Password).NotNull().NotEmpty();
         }
     }

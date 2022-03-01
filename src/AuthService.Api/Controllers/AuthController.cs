@@ -22,5 +22,13 @@ namespace AuthService.Api.Controllers
         [HttpPost("validate")]
         public async Task<IActionResult> Validate([FromBody] ValidateTokenCommand request)
             => Ok(await _mediator.Send(request));
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand request)
+            => Ok(await _mediator.Send(request));
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand request)
+            => Ok(await _mediator.Send(request));
     }
 }
