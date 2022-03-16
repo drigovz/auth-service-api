@@ -1,6 +1,8 @@
 using AuthService.Application.Notifications;
 using AuthService.Infra.IoC.DependencyInjection;
 using FluentValidation.AspNetCore;
+using Serilog;
+using Serilog.Events;
 
 #region [+] ConfigureServices
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +20,18 @@ builder.Services.AddServices(builder.Configuration);
 builder.Services.AddScoped<NotificationContext>();
 builder.Services.AddControllers()
         .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<NotificationContext>());
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.Seq("http://localhost:5341")
+    .CreateLogger();
+
+Log.Information("Starting application...");
+
+builder.Host.UseSerilog();
 #endregion
 
 #region [+] Configure

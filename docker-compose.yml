@@ -15,6 +15,19 @@ services:
       MSSQL_PID: ${SQL_PID}
     networks:
       - dev-network
+  
+  seq:
+    image: datalust/seq:latest
+    container_name: seq
+    user: root
+    volumes:
+      - C:\containers\seq:/data
+    ports: 
+      - "5341:80"
+    environment:
+      ACCEPT_EULA: "Y"
+    networks:
+      - dev-network
 
 networks:
   dev-network:

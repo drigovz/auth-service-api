@@ -3,6 +3,7 @@ using AuthService.Application.Notifications;
 using AuthService.Application.Utilities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 namespace AuthService.Application.Core.Users.Handlers.Command
 {
@@ -11,12 +12,14 @@ namespace AuthService.Application.Core.Users.Handlers.Command
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _sigInManager;
         private readonly NotificationContext _notification;
+        private readonly ILogger<UserCreateCommandHandler> _logger;
 
-        public UserCreateCommandHandler(NotificationContext notification, SignInManager<IdentityUser> sigInManager, UserManager<IdentityUser> userManager)
+        public UserCreateCommandHandler(NotificationContext notification, SignInManager<IdentityUser> sigInManager, UserManager<IdentityUser> userManager, ILogger<UserCreateCommandHandler> logger)
         {
             _notification = notification;
             _sigInManager = sigInManager;
             _userManager = userManager;
+            _logger = logger;
         }
 
         public async Task<GenericResponse> Handle(UserCreateCommand request, CancellationToken cancellationToken)
@@ -32,7 +35,11 @@ namespace AuthService.Application.Core.Users.Handlers.Command
             if (!result.Succeeded)
             {
                 foreach (var error in result?.Errors)
+                {
+                    _logger.LogError($"Identity Error - {error.Code}", error.Description);
+
                     _notification.AddNotification($"Identity Error - {error.Code}", error.Description);
+                }
 
                 return new GenericResponse
                 {
@@ -41,6 +48,8 @@ namespace AuthService.Application.Core.Users.Handlers.Command
             }
 
             await _sigInManager.SignInAsync(user, false);
+
+            _logger.LogInformation("User created Successfully", user);
 
             return new GenericResponse
             {
